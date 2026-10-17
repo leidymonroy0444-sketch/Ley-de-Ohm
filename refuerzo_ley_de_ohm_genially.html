@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Refuerzo interactivo - Ley de Ohm</title>
+<style>
+:root{
+  --azul:#2f6bff;
+  --verde:#43a047;
+  --amarillo:#f5b82e;
+  --oscuro:#24324a;
+  --claro:#f7f9fc;
+  --blanco:#ffffff;
+  --gris:#6b7280;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(135deg,#eef4ff 0%,#f8fff8 55%,#fff8df 100%);
+  color:var(--oscuro);
+}
+.app{
+  width:min(1100px,96%);
+  margin:20px auto;
+}
+.hero{
+  background:var(--blanco);
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 12px 35px rgba(36,50,74,.12);
+  text-align:center;
+}
+.hero h1{margin:0 0 8px;color:var(--azul);font-size:clamp(28px,4vw,48px)}
+.hero p{margin:0;color:var(--gris);font-size:18px}
+.nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  margin:18px 0;
+}
+.nav button{
+  border:0;
+  border-radius:999px;
+  padding:12px 18px;
+  cursor:pointer;
+  font-weight:700;
+  background:#fff;
+  color:var(--oscuro);
+  box-shadow:0 6px 18px rgba(36,50,74,.10);
+}
+.nav button.active{background:var(--azul);color:white}
+.panel{
+  display:none;
+  background:#fff;
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 12px 35px rgba(36,50,74,.10);
+  margin-top:12px;
+}
+.panel.active{display:block}
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.card{
+  border-radius:20px;
+  padding:20px;
+  min-height:170px;
+  border:2px solid transparent;
+}
+.card h3{margin-top:0}
+.card.azul{background:#eef4ff;border-color:#c9d8ff}
+.card.verde{background:#eef9ef;border-color:#cce9cf}
+.card.amarillo{background:#fff7df;border-color:#f6dda0}
+.big{font-size:38px;font-weight:800;margin:8px 0}
+.formula{
+  font-size:30px;
+  font-weight:800;
+  text-align:center;
+  padding:14px;
+  border-radius:16px;
+  background:#f3f6fb;
+  margin:12px 0;
+}
+.triangle{
+  width:260px;height:230px;margin:20px auto;position:relative;
+}
+.triangle svg{width:100%;height:100%}
+.triangle text{font-weight:800;font-size:34px}
+.example{
+  padding:18px;
+  border-left:6px solid var(--amarillo);
+  background:#fffaf0;
+  border-radius:14px;
+  margin:14px 0;
+}
+.calc{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.inputs{
+  display:grid;
+  gap:12px;
+}
+label{font-weight:700}
+input,select{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #cfd6e3;
+  border-radius:12px;
+  font-size:16px;
+}
+.action{
+  background:var(--azul);
+  color:white;
+  border:0;
+  border-radius:12px;
+  padding:13px 16px;
+  font-weight:800;
+  cursor:pointer;
+}
+.result{
+  min-height:180px;
+  border-radius:18px;
+  background:#f3f6fb;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+}
+.result .value{font-size:42px;font-weight:800;color:var(--verde)}
+.quiz-card{
+  background:#f8fafc;
+  border-radius:18px;
+  padding:18px;
+  margin:14px 0;
+}
+.quiz-card button{
+  display:block;
+  width:100%;
+  text-align:left;
+  margin:8px 0;
+  padding:11px 12px;
+  border:1px solid #d7dce5;
+  background:white;
+  border-radius:10px;
+  cursor:pointer;
+}
+.quiz-card button.correct{background:#e8f6ea;border-color:#7bc783}
+.quiz-card button.wrong{background:#fff0f0;border-color:#e18b8b}
+.feedback{font-weight:700;margin-top:8px}
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#eef4ff;
+  color:var(--azul);
+  font-weight:800;
+  margin-bottom:8px;
+}
+@media (max-width:760px){
+  .grid3,.calc{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div class="badge">⚡ Refuerzo interactivo</div>
+    <h1>Ley de Ohm</h1>
+    <p>Comprende la relación entre voltaje, corriente y resistencia.</p>
+  </section>
+
+  <div class="nav">
+    <button class="tab active" data-target="conceptos">1. Conceptos</button>
+    <button class="tab" data-target="formulas">2. Fórmulas</button>
+    <button class="tab" data-target="ejemplos">3. Ejemplos</button>
+    <button class="tab" data-target="calculadora">4. Calculadora</button>
+    <button class="tab" data-target="practica">5. Practica</button>
+  </div>
+
+  <section id="conceptos" class="panel active">
+    <h2>🔌 Recordemos las magnitudes eléctricas</h2>
+    <div class="grid3">
+      <div class="card azul">
+        <h3>Voltaje (V)</h3>
+        <div class="big">V</div>
+        <p>Es la diferencia de potencial que impulsa las cargas eléctricas.</p>
+        <strong>Unidad: voltio (V)</strong>
+      </div>
+      <div class="card verde">
+        <h3>Corriente (I)</h3>
+        <div class="big">I</div>
+        <p>Es el flujo de carga eléctrica que circula por un conductor.</p>
+        <strong>Unidad: amperio (A)</strong>
+      </div>
+      <div class="card amarillo">
+        <h3>Resistencia (R)</h3>
+        <div class="big">R</div>
+        <p>Es la oposición que presenta un material al paso de la corriente.</p>
+        <strong>Unidad: ohmio (Ω)</strong>
+      </div>
+    </div>
+  </section>
+
+  <section id="formulas" class="panel">
+    <h2>📐 Fórmulas de la Ley de Ohm</h2>
+    <p>La Ley de Ohm relaciona las tres magnitudes eléctricas principales.</p>
+
+    <div class="triangle">
+      <svg viewBox="0 0 260 230" aria-label="Triángulo de la Ley de Ohm">
+        <polygon points="130,15 20,210 240,210" fill="#f7f9fc" stroke="#2f6bff" stroke-width="5"/>
+        <line x1="60" y1="125" x2="200" y2="125" stroke="#43a047" stroke-width="4"/>
+        <line x1="130" y1="125" x2="130" y2="210" stroke="#f5b82e" stroke-width="4"/>
+        <text x="117" y="93" fill="#2f6bff">V</text>
+        <text x="72" y="181" fill="#43a047">I</text>
+        <text x="168" y="181" fill="#f5b82e">R</text>
+      </svg>
+    </div>
+
+    <div class="grid3">
+      <div class="card azul">
+        <h3>Para hallar voltaje</h3>
+        <div class="formula">V = I × R</div>
+      </div>
+      <div class="card verde">
+        <h3>Para hallar corriente</h3>
+        <div class="formula">I = V ÷ R</div>
+      </div>
+      <div class="card amarillo">
+        <h3>Para hallar resistencia</h3>
+        <div class="formula">R = V ÷ I</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ejemplos" class="panel">
+    <h2>🧠 Ejemplos resueltos</h2>
+
+    <div class="example">
+      <strong>Ejemplo 1: hallar corriente</strong>
+      <p>Datos: V = 12 V y R = 6 Ω</p>
+      <p><b>I = V ÷ R = 12 ÷ 6 = 2 A</b></p>
+    </div>
+
+    <div class="example">
+      <strong>Ejemplo 2: hallar voltaje</strong>
+      <p>Datos: I = 3 A y R = 4 Ω</p>
+      <p><b>V = I × R = 3 × 4 = 12 V</b></p>
+    </div>
+
+    <div class="example">
+      <strong>Ejemplo 3: hallar resistencia</strong>
+      <p>Datos: V = 20 V e I = 4 A</p>
+      <p><b>R = V ÷ I = 20 ÷ 4 = 5 Ω</b></p>
+    </div>
+  </section>
+
+  <section id="calculadora" class="panel">
+    <h2>🧮 Calculadora interactiva</h2>
+    <p>Selecciona qué magnitud quieres hallar y escribe los otros dos valores.</p>
+
+    <div class="calc">
+      <div class="inputs">
+        <div>
+          <label for="buscar">Quiero hallar:</label>
+          <select id="buscar">
+            <option value="I">Corriente (I)</option>
+            <option value="V">Voltaje (V)</option>
+            <option value="R">Resistencia (R)</option>
+          </select>
+        </div>
+
+        <div id="campoV">
+          <label for="v">Voltaje (V):</label>
+          <input id="v" type="number" min="0" step="0.1" value="12">
+        </div>
+
+        <div id="campoI" style="display:none">
+          <label for="i">Corriente (A):</label>
+          <input id="i" type="number" min="0" step="0.1" value="2">
+        </div>
+
+        <div id="campoR">
+          <label for="r">Resistencia (Ω):</label>
+          <input id="r" type="number" min="0.1" step="0.1" value="6">
+        </div>
+
+        <button class="action" id="calcular">Calcular</button>
+      </div>
+
+      <div class="result" id="resultado">
+        <div>Resultado</div>
+        <div class="value">2 A</div>
+        <small>I = 12 ÷ 6</small>
+      </div>
+    </div>
+  </section>
+
+  <section id="practica" class="panel">
+    <h2>✅ Pon a prueba lo aprendido</h2>
+
+    <div class="quiz-card" data-answer="b">
+      <p><strong>1. Si V = 18 V y R = 6 Ω, ¿cuál es la corriente?</strong></p>
+      <button data-option="a">a) 2 A</button>
+      <button data-option="b">b) 3 A</button>
+      <button data-option="c">c) 6 A</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="quiz-card" data-answer="c">
+      <p><strong>2. Si I = 2 A y R = 5 Ω, ¿cuál es el voltaje?</strong></p>
+      <button data-option="a">a) 2.5 V</button>
+      <button data-option="b">b) 7 V</button>
+      <button data-option="c">c) 10 V</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="quiz-card" data-answer="a">
+      <p><strong>3. Si V = 24 V e I = 4 A, ¿cuál es la resistencia?</strong></p>
+      <button data-option="a">a) 6 Ω</button>
+      <button data-option="b">b) 20 Ω</button>
+      <button data-option="c">c) 96 Ω</button>
+      <div class="feedback"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+
+const buscar = document.getElementById('buscar');
+const campoV = document.getElementById('campoV');
+const campoI = document.getElementById('campoI');
+const campoR = document.getElementById('campoR');
+
+function actualizarCampos(){
+  const x = buscar.value;
+  campoV.style.display = x === 'V' ? 'none' : 'block';
+  campoI.style.display = x === 'I' ? 'none' : 'block';
+  campoR.style.display = x === 'R' ? 'none' : 'block';
+}
+buscar.addEventListener('change', actualizarCampos);
+
+document.getElementById('calcular').addEventListener('click', () => {
+  const objetivo = buscar.value;
+  const v = parseFloat(document.getElementById('v').value);
+  const i = parseFloat(document.getElementById('i').value);
+  const r = parseFloat(document.getElementById('r').value);
+  let valor, unidad, paso;
+
+  if(objetivo === 'I'){
+    if(!(v >= 0) || !(r > 0)) return mostrarError('Ingresa un voltaje válido y una resistencia mayor que 0.');
+    valor = v / r; unidad = 'A'; paso = `I = ${v} ÷ ${r}`;
+  } else if(objetivo === 'V'){
+    if(!(i >= 0) || !(r > 0)) return mostrarError('Ingresa una corriente válida y una resistencia mayor que 0.');
+    valor = i * r; unidad = 'V'; paso = `V = ${i} × ${r}`;
+  } else {
+    if(!(v >= 0) || !(i > 0)) return mostrarError('Ingresa un voltaje válido y una corriente mayor que 0.');
+    valor = v / i; unidad = 'Ω'; paso = `R = ${v} ÷ ${i}`;
+  }
+
+  document.getElementById('resultado').innerHTML =
+    `<div>Resultado</div><div class="value">${valor.toFixed(2).replace(/\.00$/,'')} ${unidad}</div><small>${paso}</small>`;
+});
+
+function mostrarError(msg){
+  document.getElementById('resultado').innerHTML =
+    `<div style="font-weight:800;color:#b42318">${msg}</div>`;
+}
+
+document.querySelectorAll('.quiz-card').forEach(card => {
+  const correcta = card.dataset.answer;
+  card.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      card.querySelectorAll('button').forEach(b => b.classList.remove('correct','wrong'));
+      const ok = btn.dataset.option === correcta;
+      btn.classList.add(ok ? 'correct' : 'wrong');
+      card.querySelector('.feedback').textContent =
+        ok ? '¡Correcto! Muy bien.' : 'Revisa la fórmula e inténtalo de nuevo.';
+    });
+  });
+});
+</script>
+</body>
+</html>
